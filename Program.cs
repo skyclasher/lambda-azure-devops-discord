@@ -1,6 +1,7 @@
 ﻿using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.Serialization.SystemTextJson;
+using AzureDevOpsDiscord.Extensions;
 using AzureDevOpsDiscord.Models.Devops;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -54,11 +55,16 @@ namespace AzureDevOpsDiscord
                     if (bodyRequest!.EventType.Contains("pullrequest"))
                     {
                         title = $"{bodyRequest.Message?.Markdown}";
-                        desc = $"**Azure Devops Pull Request: {bodyRequest?.Resource?.Repository?.Name}**\nStatus {bodyRequest?.Resource?.Status}\nSource Branch: {bodyRequest?.Resource?.SourceRefName}\nTarget Branch: {bodyRequest?.Resource?.TargetRefName}";
+                        desc = $"**Azure Devops Pull Request: {bodyRequest?.Resource?.Repository?.Name}**\nStatus: {bodyRequest?.Resource?.Status?.FirstCharToUpper()}\nSource Branch: {bodyRequest?.Resource?.SourceRefName}\nTarget Branch: {bodyRequest?.Resource?.TargetRefName}";
                         color = 3447003;
                         author = bodyRequest?.Resource?.CreatedBy?.DisplayName;
                         link = bodyRequest?.Resource?.Links?.Web?.Href;
 
+                        if (bodyRequest!.EventType == "git.pullrequest.created")
+                        {
+                            title = $"Pull Request #{bodyRequest?.Resource?.PullRequestId} Created";
+
+                        }
 
                         if (bodyRequest!.EventType == "git.pullrequest.updated")
                         {
